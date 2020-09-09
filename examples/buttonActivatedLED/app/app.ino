@@ -13,7 +13,7 @@ namespace ah = ArduinoHardware;
 ah::LED testLed = ah::LED(2);
 
 // Configures an INPUT button on pin 4
-ah::Button btnActivateLed = ah::Button(4);
+ah::Button btnActivateLed = ah::Button(4, ButtonType::RAW_READING);
 
 void setup()
 {
