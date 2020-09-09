@@ -1,3 +1,6 @@
+// Library by Guylian Gilsing
+// Github: https://github.com/GuylianGilsing/ArduinoLibs
+
 #ifndef ARDUINO_HARDWARE_FILE_BUTTON
 #define ARDUINO_HARDWARE_FILE_BUTTON
 
