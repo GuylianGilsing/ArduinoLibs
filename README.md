@@ -32,7 +32,7 @@ The button class makes it easier to work with buttons.
 namespace ah = ArduinoHardware;
 
 // Register a button on pin 4
-ah::Button testButton = ah::Button(4, ButtonType::RAW_READING);
+ah::Button testButton = ah::Button(4, ah::ButtonType::RAW_READING);
 
 // Check if the button is pressed
 if(testButton.IsPressed())

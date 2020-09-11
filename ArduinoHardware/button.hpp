@@ -4,23 +4,23 @@
 #ifndef ARDUINO_HARDWARE_FILE_BUTTON
 #define ARDUINO_HARDWARE_FILE_BUTTON
 
-enum ButtonType
-{
-    PULL_UP = 0,
-    PULL_DOWN = 1,
-    RAW_READING = 2
-};
-
 namespace ArduinoHardware
 {
+    // Using an enum class makes it more clear to which enum you are referring
+    enum class ButtonType
+    {
+        PULL_UP = 0,
+        PULL_DOWN = 1,
+        RAW_READING = 2
+    };
+
     class Button
     {
     private:
         int pin = 0;
         ButtonType buttonState = ButtonType::RAW_READING;
 
-        bool pullUpButtonClickRegistered = false;
-        bool pullDownButtonClickRegistered = false;
+        bool buttonClickRegistered = false;
 
     public:
         // Normal constructor
@@ -40,64 +40,38 @@ namespace ArduinoHardware
 
             switch(this->buttonState)
             {
+                // A pullup button returns true once when a high voltage has been detected
                 case ButtonType::PULL_UP:
-                    pressed = this->isPressedPullUp(buttonReading);
+                    if(buttonReading == HIGH && this->buttonClickRegistered == false)
+                    {
+                        pressed = true;
+                        this->buttonClickRegistered = true;
+                    }
+
+                    if(this->buttonClickRegistered && buttonReading == LOW)
+                        this->buttonClickRegistered = false;
                 break;
 
+                // A pulldown button returns true once when a high voltage has been let go off
                 case ButtonType::PULL_DOWN:
-                    pressed = this->isPressedPullDown(buttonReading);
+                    if(!this->buttonClickRegistered && buttonReading == HIGH)
+                        this->buttonClickRegistered = true;
+
+                    if(this->buttonClickRegistered && buttonState == LOW)
+                    {
+                        pressed = true;
+                        this->buttonClickRegistered = true;
+                    }
                 break;
 
-                // Default is ButtonType::RAW_READING
+                // a RAW_READING button returns true when a high voltage is detected
                 default:
-                    pressed = this->isPressedRaw(buttonReading);
+                    if(buttonReading == HIGH)
+                        pressed = true;
                 break;
             }
 
             return pressed;
-        }
-
-    private:
-        bool isPressedPullUp(int a_buttonReading)
-        {
-            bool isPressed = false;
-
-            if(a_buttonReading == HIGH && this->pullUpButtonClickRegistered == false)
-            {
-                isPressed = true;
-                this->pullUpButtonClickRegistered = true;
-            }
-
-            if(this->pullUpButtonClickRegistered && a_buttonReading == LOW)
-                this->pullUpButtonClickRegistered = false;
-
-            return isPressed;
-        }
-
-        bool isPressedPullDown(int a_buttonReading)
-        {
-            bool isPressed = false;
-
-            if(a_buttonReading == HIGH && this->pullDownButtonClickRegistered == false)
-                this->pullDownButtonClickRegistered = true;
-
-            if(a_buttonReading == LOW && this->pullDownButtonClickRegistered == true)
-            {
-                this->pullDownButtonClickRegistered = false;
-                isPressed = true;
-            }
-
-            return isPressed;
-        }
-
-        bool isPressedRaw(int a_buttonReading)
-        {
-            bool isPressed = false;
-
-            if(a_buttonReading == HIGH)
-                isPressed = true;
-
-            return isPressed;
         }
     };
 }

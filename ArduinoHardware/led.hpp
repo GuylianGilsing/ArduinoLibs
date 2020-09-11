@@ -10,7 +10,6 @@ namespace ArduinoHardware
     {
     private:
         int pin = 0;
-        int voltage = LOW;
 
     public:
         LED(int a_pin)
@@ -21,20 +20,12 @@ namespace ArduinoHardware
 
         void SetHigh()
         {
-            this->voltage = HIGH;
-            UpdateVoltage();
+            digitalWrite(this->pin, HIGH);
         }
 
         void SetLow()
         {
-            this->voltage = LOW;
-            UpdateVoltage();
-        }
-
-    private:
-        void UpdateVoltage()
-        {
-            digitalWrite(this->pin, this->voltage);
+            digitalWrite(this->pin, LOW);
         }
     };
 }
