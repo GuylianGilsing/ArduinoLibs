@@ -1,6 +1,8 @@
 // Library by Guylian Gilsing
 // Github: https://github.com/GuylianGilsing/ArduinoLibs
 
+#include <Arduino.h>
+
 #ifndef ARDUINO_HARDWARE_FILE_BUTTON
 #define ARDUINO_HARDWARE_FILE_BUTTON
 
@@ -17,10 +19,15 @@ namespace ArduinoHardware
     class Button
     {
     private:
-        int pin = 0;
+        unsigned int pin = 0;
         ButtonType buttonState = ButtonType::RAW_READING;
 
         bool buttonClickRegistered = false;
+
+        // Debouncing (Removing voltage interference)
+        const int debounceTime = 50;
+        int lastTimeStateChanged = 0;
+        int lastBtnState = 0;
 
     public:
         // Normal constructor
@@ -38,38 +45,46 @@ namespace ArduinoHardware
 
             int buttonReading = digitalRead(this->pin);
 
-            switch(this->buttonState)
+            if(buttonReading != this->lastBtnState)
+                this->lastTimeStateChanged = millis();
+
+            if((millis() - this->lastTimeStateChanged) > this->debounceTime)
             {
-                // A pullup button returns true once when a high voltage has been detected
-                case ButtonType::PULL_UP:
-                    if(buttonReading == HIGH && this->buttonClickRegistered == false)
-                    {
-                        pressed = true;
-                        this->buttonClickRegistered = true;
-                    }
+                switch(this->buttonState)
+                {
+                    // A pullup button returns true once when a high voltage has been detected
+                    case ButtonType::PULL_UP:
+                        if(buttonReading == HIGH && this->buttonClickRegistered == false)
+                        {
+                            pressed = true;
+                            this->buttonClickRegistered = true;
+                        }
 
-                    if(this->buttonClickRegistered && buttonReading == LOW)
-                        this->buttonClickRegistered = false;
-                break;
+                        if(this->buttonClickRegistered && buttonReading == LOW)
+                            this->buttonClickRegistered = false;
+                    break;
 
-                // A pulldown button returns true once when a high voltage has been let go off
-                case ButtonType::PULL_DOWN:
-                    if(!this->buttonClickRegistered && buttonReading == HIGH)
-                        this->buttonClickRegistered = true;
+                    // A pulldown button returns true once when a high voltage has been let go off
+                    case ButtonType::PULL_DOWN:
+                        if(!this->buttonClickRegistered && buttonReading == HIGH)
+                            this->buttonClickRegistered = true;
 
-                    if(this->buttonClickRegistered && buttonState == LOW)
-                    {
-                        pressed = true;
-                        this->buttonClickRegistered = true;
-                    }
-                break;
+                        if(this->buttonClickRegistered && buttonReading == LOW)
+                        {
+                            pressed = true;
+                            this->buttonClickRegistered = true;
+                        }
+                    break;
 
-                // a RAW_READING button returns true when a high voltage is detected
-                default:
-                    if(buttonReading == HIGH)
-                        pressed = true;
-                break;
+                    // a RAW_READING button returns true when a high voltage is detected
+                    default:
+                        if(buttonReading == HIGH)
+                            pressed = true;
+                    break;
+                }
             }
+
+            this->lastBtnState = buttonReading;
 
             return pressed;
         }
