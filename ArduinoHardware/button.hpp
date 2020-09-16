@@ -1,8 +1,6 @@
 // Library by Guylian Gilsing
 // Github: https://github.com/GuylianGilsing/ArduinoLibs
 
-#include <Arduino.h>
-
 #ifndef ARDUINO_HARDWARE_FILE_BUTTON
 #define ARDUINO_HARDWARE_FILE_BUTTON
 
@@ -48,7 +46,7 @@ namespace ArduinoHardware
             if(buttonReading != this->lastBtnState)
                 this->lastTimeStateChanged = millis();
 
-            if((millis() - this->lastTimeStateChanged) > this->debounceTime)
+            if((millis() - this->lastTimeStateChanged) >= this->debounceTime)
             {
                 switch(this->buttonState)
                 {
